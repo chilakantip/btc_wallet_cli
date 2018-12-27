@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/c-bata/go-prompt"
-	"github.com/pschilakantitech/btc_wallet_cli/keys"
+	"github.com/chilakantip/btc_wallet_cli/keys"
 )
 
 func main() {

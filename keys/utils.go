@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/pschilakantitech/btc_wallet_cli/secp256k1"
+	"github.com/chilakantip/btc_wallet_cli/secp256k1"
 )
 
 func SetupKeysFromSeed(seed string) (pk *PrivateAddr, err error) {
