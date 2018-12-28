@@ -28,7 +28,7 @@ func Sha2Sum(b []byte) (out [32]byte) {
 	return
 }
 
-func checksum(in []byte) (sum []byte) {
+func Checksum(in []byte) (sum []byte) {
 	sh := Sha2Sum(in)
 	sum = make([]byte, 4)
 	copy(sum, sh[:4])

@@ -27,6 +27,7 @@ btc_wallet_cli
 btc_wallet_cli.pid
 log
 vendor
+*.wif
 
 # Ignore data folder
 

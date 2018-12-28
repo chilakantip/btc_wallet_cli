@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/btcsuite/btcutil"
 	"github.com/c-bata/go-prompt"
+	"github.com/chilakantip/btc_wallet_cli/api"
 	"github.com/chilakantip/btc_wallet_cli/keys"
 )
 
@@ -76,12 +78,21 @@ func main() {
 				break
 			}
 
-			fileName := fmt.Sprintf("%s_%s.wif", exportFileName, time.Now().Format("2006_01_02_15:04:05"))
+			fileName := fmt.Sprintf("%s_%s.wif", exportFileName, time.Now().Format("2006_01_02_150405"))
 			if err := ioutil.WriteFile(fileName, []byte(pk.WIF), 0400); err != nil {
 				fmt.Println("failed to export private key")
 				break
 			}
 			fmt.Println("exported private key to", exportFileName, "file")
+			break
+		case cmdBalance:
+			bal, err := api.GetBTCBalance(pk.Address)
+			if err != nil {
+				fmt.Println("failed to get balance")
+			}
+
+			balInBTC, _ := btcutil.NewAmount(bal.Balance / btcutil.SatoshiPerBitcoin)
+			fmt.Println("your BTC balance:", balInBTC.Format(btcutil.AmountBTC))
 			break
 		case cmdQ:
 			abortQuit()
