@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/chilakantip/btc_wallet_cli/keys"
+	"github.com/chilakantip/btc_wallet_cli/transactions"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 )
@@ -46,4 +47,20 @@ func GetBTCBalance(add string) (btc *BTCAddInfo, err error) {
 	}
 
 	return
+}
+
+func GetUTXO(add string) (utxo *transactions.UTXO, err error) {
+	utxo = new(transactions.UTXO)
+	if err = keys.ValidateBTCAddress(add); err != nil {
+		return
+	}
+
+	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
+	if err != nil {
+		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
+	}
+
+	err = json.Unmarshal(resp.Body(), &utxo)
+	return
+
 }
