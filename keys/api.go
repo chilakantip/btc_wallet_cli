@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/chilakantip/btc_wallet_cli/utils"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 )
@@ -26,7 +27,7 @@ const (
 
 func GetBTCBalance(add string) (btc *BTCAddInfo, err error) {
 	btc = new(BTCAddInfo)
-	if err = ValidateBTCAddress(add); err != nil {
+	if err = utils.ValidateBTCAddress(add); err != nil {
 		return
 	}
 

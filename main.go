@@ -13,12 +13,11 @@ import (
 )
 
 func main() {
-	//	fmt.Println(helpMsg)
-	var pk *keys.PrivateAddr
+	//fmt.Println(helpMsg)
+	pk = keys.GetKeyTemplate()
+	pk.ImportWIF(strings.TrimSpace("btc_balance.wif"))
 
-	dd := keys.GetKeyTemplate()
-	dd.Address = "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU"
-	err := transactions.MakeTxMsg(dd, "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU", 200)
+	err := transactions.MakeTxMsg(dd, "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU", 300)
 	fmt.Println(err)
 
 	return

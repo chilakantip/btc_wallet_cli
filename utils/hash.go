@@ -1,4 +1,4 @@
-package keys
+package utils
 
 import (
 	"crypto/sha256"
@@ -26,12 +26,5 @@ func RimpHash(in []byte, out []byte) {
 func Sha2Sum(b []byte) (out []byte) {
 	out = make([]byte, 32)
 	ShaHash(b, out[:])
-	return
-}
-
-func Checksum(in []byte) (sum []byte) {
-	sh := Sha2Sum(in)
-	sum = make([]byte, 4)
-	copy(sum, sh[:4])
 	return
 }

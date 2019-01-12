@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 
 	"github.com/chilakantip/btc_wallet_cli/secp256k1"
+	"github.com/chilakantip/btc_wallet_cli/utils"
 )
 
 var (
@@ -62,7 +63,7 @@ func VerifyKeyPair(priv []byte, publ []byte) error {
 	var sig secp256k1.Signature
 
 	const TestMessage = "Just some test msg here..."
-	hash := Sha2Sum([]byte(TestMessage))
+	hash := utils.Sha2Sum([]byte(TestMessage))
 
 	D := new(big.Int).SetBytes(priv)
 

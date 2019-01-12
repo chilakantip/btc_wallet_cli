@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/chilakantip/btc_wallet_cli/keys"
+	"github.com/chilakantip/btc_wallet_cli/utils"
+
+	"github.com/pkg/errors"
+	resty "gopkg.in/resty.v1"
 )
 
 var (
@@ -31,6 +34,7 @@ type unspentOutputs struct {
 	ValueHex        string       `json:"value_hex"`
 	Confirmations   uint64       `json:"confirmations"`
 	rawTrx          bytes.Buffer `json:"rawtrx"`
+	signature       []byte       `json:"signature"`
 	scriptSig       []byte       `json:"script_sig"`
 }
 
@@ -62,18 +66,18 @@ func (s *UTXOResp) string() {
 
 func getUTXO(add string) (utxo *UTXOResp, err error) {
 	utxo = new(UTXOResp)
-	//	if err = keys.ValidateBTCAddress(add); err != nil {
-	//		return
-	//	}
+	if err = utils.ValidateBTCAddress(add); err != nil {
+		return
+	}
 
-	//	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
-	//	if err != nil {
-	//		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
-	//	}
+	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
+	if err != nil {
+		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
+	}
 
-	//	err = json.Unmarshal(resp.Body(), &utxo)
+	err = json.Unmarshal(resp.Body(), &utxo)
 
-	err = json.Unmarshal([]byte(resp), &utxo)
+	//	err = json.Unmarshal([]byte(resp), &utxo)
 	return
 
 }
@@ -96,7 +100,7 @@ func getP2PKHTrxVer1Template() *P2PKHTrx {
 }
 
 func (s *P2ScriptPubKey) calcScriptPubKey() (err error) {
-	hash160, err := keys.BTCAddHash160(s.btcAddress)
+	hash160, err := utils.BTCAddHash160(s.btcAddress)
 	if err != nil {
 		return
 	}
@@ -104,12 +108,12 @@ func (s *P2ScriptPubKey) calcScriptPubKey() (err error) {
 	buf := new(bytes.Buffer)
 	buf.WriteByte(OP_DUP)
 	buf.WriteByte(OP_HASH160)
-	buf.Write(toLittleEndianHex(int8(len(hash160))))
+	buf.Write(utils.LittleEndianHex(int8(len(hash160))))
 	buf.Write(hash160)
 	buf.WriteByte(OP_EQUALVERIFY)
 	buf.WriteByte(OP_CHECKSIG)
 
-	s.scriptPubKey = append(s.scriptPubKey, toLittleEndianHex(uint8(buf.Len()))...)
+	s.scriptPubKey = append(s.scriptPubKey, utils.LittleEndianHex(uint8(buf.Len()))...)
 	s.scriptPubKey = append(s.scriptPubKey, buf.Bytes()...)
 
 	return nil
