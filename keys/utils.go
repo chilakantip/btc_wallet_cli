@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/chilakantip/btc_wallet_cli/secp256k1"
@@ -69,6 +70,10 @@ func (pk *PrivateAddr) generateBTCAddFromPrivKey() error {
 }
 
 func ValidateBTCAddress(add string) error {
+	if strings.TrimSpace(add) == "" {
+		return fmt.Errorf("empty bitcoin address")
+	}
+
 	addBytes := base58.Decode(add)
 	if addBytes[0] != 0x00 {
 		return base58.ErrInvalidFormat
@@ -78,4 +83,15 @@ func ValidateBTCAddress(add string) error {
 	}
 
 	return nil
+}
+
+func BTCAddHash160(add string) (hash160 []byte, err error) {
+	if err = ValidateBTCAddress(add); err != nil {
+		return
+	}
+
+	hash160 = make([]byte, 20)
+	buf := base58.Decode(add)
+	copy(hash160, buf[1:21])
+	return
 }

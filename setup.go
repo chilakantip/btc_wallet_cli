@@ -14,7 +14,7 @@ const (
 	exportFileName = "btc_wallet"
 )
 
-func abortQuit() {
+func Quit() {
 	fmt.Println("Quit command received; quitting application.")
 	os.Exit(Success)
 }

@@ -23,7 +23,8 @@ func RimpHash(in []byte, out []byte) {
 	copy(out, rim.Sum(nil))
 }
 
-func Sha2Sum(b []byte) (out [32]byte) {
+func Sha2Sum(b []byte) (out []byte) {
+	out = make([]byte, 32)
 	ShaHash(b, out[:])
 	return
 }

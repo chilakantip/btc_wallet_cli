@@ -8,18 +8,24 @@ import (
 
 	"github.com/btcsuite/btcutil"
 	"github.com/c-bata/go-prompt"
-	"github.com/chilakantip/btc_wallet_cli/api"
 	"github.com/chilakantip/btc_wallet_cli/keys"
+	"github.com/chilakantip/btc_wallet_cli/transactions"
 )
 
 func main() {
-	fmt.Println(helpMsg)
+	//	fmt.Println(helpMsg)
 	var pk *keys.PrivateAddr
+
+	dd := keys.GetKeyTemplate()
+	dd.Address = "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU"
+	err := transactions.MakeTxMsg(dd, "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU", 200)
+	fmt.Println(err)
+
+	return
 
 	done := false
 	for !done {
 		opt := prompt.Input("> ", startCmds)
-
 		switch strings.TrimSpace(opt) {
 		case cmdCreate, cmdRestoreFromSeed:
 			seed, err := getSeedFromCli()
@@ -33,10 +39,16 @@ func main() {
 				fmt.Println("\nfailed to create keys, try again")
 				abort()
 			}
+
+			dd := fmt.Sprintf("%x", pk.Hash160)
+			fmt.Println(dd)
+			fmt.Println(len(dd))
+
 			fmt.Println("\nsetup keys success")
 			fmt.Println("your BTC wallet address: ", pk.Address)
 			done = true
 			break
+
 		case cmdImportkey:
 			fmt.Print("Enter WIF file name: ")
 			file, err := getLineFromCmdLine()
@@ -54,8 +66,10 @@ func main() {
 			fmt.Println("your BTC wallet address: ", pk.Address)
 			done = true
 			break
+
 		case cmdQ:
-			abortQuit()
+			Quit()
+
 		default:
 			fmt.Println("invalid option, please select correct option")
 		}
@@ -85,8 +99,9 @@ func main() {
 			}
 			fmt.Println("exported private key to", exportFileName, "file")
 			break
+
 		case cmdBalance:
-			bal, err := api.GetBTCBalance(pk.Address)
+			bal, err := keys.GetBTCBalance(pk.Address)
 			if err != nil {
 				fmt.Println("failed to get balance")
 			}
@@ -94,8 +109,10 @@ func main() {
 			balInBTC, _ := btcutil.NewAmount(bal.Balance / btcutil.SatoshiPerBitcoin)
 			fmt.Println("your BTC balance:", balInBTC.Format(btcutil.AmountBTC))
 			break
+
 		case cmdQ:
-			abortQuit()
+			Quit()
+
 		default:
 			fmt.Println("invalid option, please select correct option")
 		}

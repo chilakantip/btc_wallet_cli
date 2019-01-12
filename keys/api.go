@@ -1,25 +1,32 @@
-package api
+package keys
 
 import (
 	"encoding/json"
 	"fmt"
 	"reflect"
 
-	"github.com/chilakantip/btc_wallet_cli/keys"
-	"github.com/chilakantip/btc_wallet_cli/transactions"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 )
 
+type BTCAddInfo struct {
+	Address         string
+	Balance         float64
+	Unit            string
+	No_tx           int64
+	Totail_received int64
+}
+
 // API ref https://www.blockchain.com/api/blockchain_api
 const (
 	bcInfoCheckBalance = "https://blockchain.info/balance?active=%s"
-	bcInfoGetUTXO      = "https://blockchain.info/unspent?active=%s"
+
+//	bcInfoGetUTXO      = "https://blockchain.info/unspent?active=%s"
 )
 
 func GetBTCBalance(add string) (btc *BTCAddInfo, err error) {
 	btc = new(BTCAddInfo)
-	if err = keys.ValidateBTCAddress(add); err != nil {
+	if err = ValidateBTCAddress(add); err != nil {
 		return
 	}
 
@@ -47,20 +54,4 @@ func GetBTCBalance(add string) (btc *BTCAddInfo, err error) {
 	}
 
 	return
-}
-
-func GetUTXO(add string) (utxo *transactions.UTXO, err error) {
-	utxo = new(transactions.UTXO)
-	if err = keys.ValidateBTCAddress(add); err != nil {
-		return
-	}
-
-	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
-	if err != nil {
-		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
-	}
-
-	err = json.Unmarshal(resp.Body(), &utxo)
-	return
-
 }
