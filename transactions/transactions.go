@@ -45,20 +45,23 @@ func MakeTxMsg(pk *keys.PrivateAddr, toAdd string, satoshi uint64) (err error) {
 		}
 		voutBuf.Write(singleVout.scriptPubKey)
 	}
+	fmt.Println("vout buf")
+	fmt.Println(fmt.Sprintf("%x", voutBuf.Bytes()))
 
 	// generat the Vins
 	vinBuf := new(bytes.Buffer)
 	vinBuf.Write(utils.LittleEndianHex(uint8(len(seldUTXO))))
 	for _, singleUtxo := range seldUTXO {
-		trxHash, err_ := utils.HexAndReverseStr(singleUtxo.TxHash)
+		trxHash, err_ := hex.DecodeString(singleUtxo.TxHash)
 		if err_ != nil {
 			return err_
 		}
 		vinBuf.Write(trxHash)
-		vinBuf.Write(utils.LittleEndianHex(uint64(singleUtxo.TxOutputN)))
-
+		vinBuf.Write(utils.LittleEndianHex(singleUtxo.TxOutputN))
 	}
 
+	fmt.Println("vin buf")
+	fmt.Println(fmt.Sprintf("%x", vinBuf.Bytes()))
 	// generat scriptSig
 	scriptSigBuf := new(bytes.Buffer)
 	for _, singleUtxo := range seldUTXO {
@@ -74,7 +77,7 @@ func MakeTxMsg(pk *keys.PrivateAddr, toAdd string, satoshi uint64) (err error) {
 
 		signBuf.Write(utils.LittleEndianHex(uint8(len(trxScript))))
 		signBuf.Write(trxScript)
-		signBuf.Write(trxTemp.sequence)
+		signBuf.Write(utils.LittleEndianHex(uint32(10))) //10 sec sequence
 
 		signBuf.Write(voutBuf.Bytes())
 
@@ -82,28 +85,38 @@ func MakeTxMsg(pk *keys.PrivateAddr, toAdd string, satoshi uint64) (err error) {
 		signBuf.Write(trxTemp.hashCodeType)
 
 		//now msg is ready for signature
+		fmt.Println("trx digrest for sig")
+		fmt.Println(fmt.Sprintf("%x", signBuf.Bytes()))
+		fmt.Println("trx------------ digrest for sig")
 
 		sig, err := pk.SignTransaction(signBuf.Bytes())
 		if err != nil {
 			return errors.Wrap(err, "failed to sign the transaction")
 		}
+		singleUtxo.signature = make([]byte, len(sig))
 		copy(singleUtxo.signature, sig)
-		copy(singleUtxo.scriptSig, pk.CalcScriptSig(sig))
+
+		ssig := pk.CalcScriptSig(sig)
+		singleUtxo.scriptSig = make([]byte, len(ssig))
+		copy(singleUtxo.scriptSig, ssig)
 
 		scriptSigBuf.Write(singleUtxo.scriptSig)
 		scriptSigBuf.Write(trxTemp.sequence)
 	}
 
+	fmt.Println("scriptSigBuf")
+	fmt.Println(fmt.Sprintf("%x", scriptSigBuf.Bytes()))
 	//construct the final transaction
 	finalSigTrx := new(bytes.Buffer)
 
 	finalSigTrx.Write(trxTemp.version)
 	finalSigTrx.Write(vinBuf.Bytes())
 	finalSigTrx.Write(scriptSigBuf.Bytes())
+	finalSigTrx.Write(utils.LittleEndianHex(uint32(10))) //10 sec sequence
 	finalSigTrx.Write(voutBuf.Bytes())
 	finalSigTrx.Write(trxTemp.lockTime)
 	finalSigTrx.Write(trxTemp.hashCodeType)
-
+	fmt.Println("---------------final push-")
 	fmt.Println(fmt.Sprintf("%x", finalSigTrx.Bytes()))
 	return nil
 }

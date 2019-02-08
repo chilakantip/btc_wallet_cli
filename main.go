@@ -13,11 +13,13 @@ import (
 )
 
 func main() {
-	//fmt.Println(helpMsg)
+	fmt.Println(helpMsg)
+	var pk *keys.PrivateAddr
+
 	pk = keys.GetKeyTemplate()
 	pk.ImportWIF(strings.TrimSpace("btc_balance.wif"))
 
-	err := transactions.MakeTxMsg(dd, "1HHBsASjeTaGRB6Cv5qE3GPe5PZ7PkPreU", 300)
+	err := transactions.MakeTxMsg(pk, "1FFbMXUm378NrCCvHyGaPWicq4pjJ12qQk", 118307)
 	fmt.Println(err)
 
 	return
@@ -38,10 +40,6 @@ func main() {
 				fmt.Println("\nfailed to create keys, try again")
 				abort()
 			}
-
-			dd := fmt.Sprintf("%x", pk.Hash160)
-			fmt.Println(dd)
-			fmt.Println(len(dd))
 
 			fmt.Println("\nsetup keys success")
 			fmt.Println("your BTC wallet address: ", pk.Address)

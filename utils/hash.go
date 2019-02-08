@@ -1,30 +1,28 @@
 package utils
 
-import (
-	"crypto/sha256"
+import "crypto/sha256"
 
-	"golang.org/x/crypto/ripemd160"
-)
-
-func ShaHash(b []byte, out []byte) {
-	s := sha256.New()
-	s.Write(b[:])
-	tmp := s.Sum(nil)
-	s.Reset()
-	s.Write(tmp)
-	copy(out[:], s.Sum(nil))
+// HashB calculates hash(b) and returns the resulting bytes.
+func HashB(b []byte) []byte {
+	hash := sha256.Sum256(b)
+	return hash[:]
 }
 
-func RimpHash(in []byte, out []byte) {
-	sha := sha256.New()
-	sha.Write(in)
-	rim := ripemd160.New()
-	rim.Write(sha.Sum(nil)[:])
-	copy(out, rim.Sum(nil))
+// HashH calculates hash(b) and returns the resulting bytes as a Hash.
+func HashH(b []byte) Hash {
+	return Hash(sha256.Sum256(b))
 }
 
-func Sha2Sum(b []byte) (out []byte) {
-	out = make([]byte, 32)
-	ShaHash(b, out[:])
-	return
+// DoubleHashB calculates hash(hash(b)) and returns the resulting bytes.
+func DoubleHashB(b []byte) []byte {
+	first := sha256.Sum256(b)
+	second := sha256.Sum256(first[:])
+	return second[:]
+}
+
+// DoubleHashH calculates hash(hash(b)) and returns the resulting bytes as a
+// Hash.
+func DoubleHashH(b []byte) Hash {
+	first := sha256.Sum256(b)
+	return Hash(sha256.Sum256(first[:]))
 }

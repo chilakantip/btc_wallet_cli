@@ -63,7 +63,7 @@ func VerifyKeyPair(priv []byte, publ []byte) error {
 	var sig secp256k1.Signature
 
 	const TestMessage = "Just some test msg here..."
-	hash := utils.Sha2Sum([]byte(TestMessage))
+	hash := utils.DoubleHashB([]byte(TestMessage))
 
 	D := new(big.Int).SetBytes(priv)
 

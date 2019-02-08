@@ -6,9 +6,6 @@ import (
 	"fmt"
 
 	"github.com/chilakantip/btc_wallet_cli/utils"
-
-	"github.com/pkg/errors"
-	resty "gopkg.in/resty.v1"
 )
 
 var (
@@ -28,7 +25,7 @@ type unspentOutputs struct {
 	TxHash          string       `json:"tx_hash"`
 	TxHashBigEndian string       `json:"tx_hash_big_endian"`
 	TxIndex         uint64       `json:"tx_index"`
-	TxOutputN       uint64       `json:"tx_output_n"`
+	TxOutputN       uint32       `json:"tx_output_n"`
 	Script          string       `json:"script"`
 	Value           uint64       `json:"value"`
 	ValueHex        string       `json:"value_hex"`
@@ -66,18 +63,18 @@ func (s *UTXOResp) string() {
 
 func getUTXO(add string) (utxo *UTXOResp, err error) {
 	utxo = new(UTXOResp)
-	if err = utils.ValidateBTCAddress(add); err != nil {
-		return
-	}
+	//	if err = utils.ValidateBTCAddress(add); err != nil {
+	//		return
+	//	}
 
-	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
-	if err != nil {
-		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
-	}
+	//	resp, err := resty.R().Get(fmt.Sprintf(bcInfoGetUTXO, add))
+	//	if err != nil {
+	//		return utxo, errors.Wrap(err, "failed to get UTXO from blockchain.info")
+	//	}
 
-	err = json.Unmarshal(resp.Body(), &utxo)
+	//	err = json.Unmarshal(resp.Body(), &utxo)
 
-	//	err = json.Unmarshal([]byte(resp), &utxo)
+	err = json.Unmarshal([]byte(resp), &utxo)
 	return
 
 }
@@ -118,3 +115,33 @@ func (s *P2ScriptPubKey) calcScriptPubKey() (err error) {
 
 	return nil
 }
+
+var resp = `{
+    
+    "unspent_outputs":[
+    
+        {
+            "tx_hash":"f9c39e617156c02e923e4185a6b8324336d2aee0c9f28b1bd28508cde7703d3e",
+            "tx_hash_big_endian":"3e3d70e7cd0885d21b8bf2c9e0aed2364332b8a685413e922ec05671619ec3f9",
+            "tx_index":312340327,
+            "tx_output_n": 2,
+            "script":"76a914146a58f188a19c075d5f88ff4ae530a59bc1853888ac",
+            "value": 546,
+            "value_hex": "0222",
+            "confirmations":59065
+        },
+      
+        {
+            "tx_hash":"40f1f69c5a63be63533b369065903ad8b0a5d341f804ce54d3026ef45dba93ba",
+            "tx_hash_big_endian":"ba93ba5df46e02d354ce04f841d3a5b0d83a906590363b5363be635a9cf6f140",
+            "tx_index":393703894,
+            "tx_output_n": 1,
+            "script":"76a914146a58f188a19c075d5f88ff4ae530a59bc1853888ac",
+            "value": 118307,
+            "value_hex": "28c3",
+            "confirmations":6290
+        }
+      
+    ]
+}
+`

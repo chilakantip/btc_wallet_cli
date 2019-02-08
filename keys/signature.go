@@ -10,8 +10,8 @@ import (
 )
 
 func (p *PrivateAddr) SignTransaction(trxMsg []byte) (signedTrx []byte, err error) {
-	doubleHash := utils.Sha2Sum(trxMsg)
-	r, s, err := EcdsaSign(p.Key, doubleHash)
+	doubleHash := utils.DoubleHashH(trxMsg)
+	r, s, err := EcdsaSign(p.Key, doubleHash.CloneBytes())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to sign the trx.")
 	}

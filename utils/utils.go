@@ -2,12 +2,14 @@ package utils
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"strings"
 
 	"github.com/btcsuite/btcutil/base58"
+	"golang.org/x/crypto/ripemd160"
 )
 
 func LittleEndianHex(s interface{}) []byte {
@@ -75,9 +77,52 @@ func ValidatePrivateKeyWIF(wif []byte) error {
 	return nil
 }
 
-func Checksum(in []byte) (sum []byte) {
-	sh := Sha2Sum(in)
-	sum = make([]byte, 4)
-	copy(sum, sh[:4])
+//func Checksum(in []byte) (sum []byte) {
+//	sh := Sha2Sum(in)
+//	sum = make([]byte, 4)
+//	copy(sum, sh[:4])
+//	return
+//}
+
+func RimpHash(in []byte, out []byte) {
+	sha := sha256.New()
+	sha.Write(in)
+	rim := ripemd160.New()
+	rim.Write(sha.Sum(nil)[:])
+	copy(out, rim.Sum(nil))
+}
+
+func Checksum(input []byte) (cksum []byte) {
+	cksum = make([]byte, 4)
+	h := sha256.Sum256(input)
+	h2 := sha256.Sum256(h[:])
+	copy(cksum[:], h2[:4])
 	return
 }
+
+//// CheckEncode prepends a version byte and appends a four byte checksum.
+//func CheckEncode(input []byte, version byte) string {
+//	b := make([]byte, 0, 1+len(input)+4)
+//	b = append(b, version)
+//	b = append(b, input[:]...)
+//	cksum := checksum(b)
+//	b = append(b, cksum[:]...)
+//	return Encode(b)
+//}
+
+//// CheckDecode decodes a string that was encoded with CheckEncode and verifies the checksum.
+//func CheckDecode(input string) (result []byte, version byte, err error) {
+//	decoded := Decode(input)
+//	if len(decoded) < 5 {
+//		return nil, 0, ErrInvalidFormat
+//	}
+//	version = decoded[0]
+//	var cksum [4]byte
+//	copy(cksum[:], decoded[len(decoded)-4:])
+//	if checksum(decoded[:len(decoded)-4]) != cksum {
+//		return nil, 0, ErrChecksum
+//	}
+//	payload := decoded[1 : len(decoded)-4]
+//	result = append(result, payload...)
+//	return
+//}

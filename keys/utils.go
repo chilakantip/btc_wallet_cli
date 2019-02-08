@@ -4,15 +4,20 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/chilakantip/btc_wallet_cli/utils"
-
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/chilakantip/btc_wallet_cli/secp256k1"
+	"github.com/chilakantip/btc_wallet_cli/utils"
+	"github.com/pkg/errors"
 )
 
 func SetupKeysFromSeed(seed string) (pk *PrivateAddr, err error) {
 	pk = GetKeyTemplate()
-	utils.ShaHash([]byte(seed), pk.Key)
+	dh, err := utils.NewHashFromStr(seed)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate private key from seed")
+	}
+
+	copy(pk.Key, dh.CloneBytes())
 	err = pk.generateBTCAddFromPrivKey()
 
 	return
@@ -33,6 +38,7 @@ func (pk *PrivateAddr) ImportWIF(file string) (err error) {
 	if err != nil {
 		return
 	}
+
 	wif := base58.Decode(string(key))
 	if err = utils.ValidatePrivateKeyWIF(wif); err != nil {
 		return
